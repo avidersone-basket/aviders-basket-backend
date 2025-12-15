@@ -1,28 +1,64 @@
-import ProductIN from "../models/ProductIN.js";
+import Basket from "../models/Basket.js";
 
 /**
- * GET /basket/products
- * Returns products eligible for Aviders Basket
+ * GET basket for user
  */
-export async function getBasketProducts(req, res) {
-  try {
-    const products = await ProductIN.find({
-      basketEligible: true,
-      stock: "in_stock",
-    })
-      .sort({ updated_at: -1 })
-      .lean();
+export async function getBasket(req, res) {
+  const { userId } = req.params;
 
-    return res.json({
-      success: true,
-      count: products.length,
-      products,
-    });
-  } catch (error) {
-    console.error("Basket fetch error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to load basket products",
-    });
-  }
+  const basket = await Basket.findOne({ userId });
+  res.json(basket || { userId, items: [] });
 }
+
+/**
+ * ADD / UPDATE item
+ */
+export async function addToBasket(req, res) {
+  const { userId, email, item } = req.body;
+
+  let basket = await Basket.findOne({ userId });
+
+  if (!basket) {
+    basket = new Basket({ userId, email, items: [] });
+  }
+
+  const index = basket.items.findIndex(
+    (i) => i.productId === item.productId
+  );
+
+  if (index >= 0) {
+    basket.items[index] = item;
+  } else {
+    basket.items.push(item);
+  }
+
+  await basket.save();
+  res.json(basket);
+}
+
+/**
+ * REMOVE item
+ */
+export async function removeFromBasket(req, res) {
+  const { userId, productId } = req.body;
+
+  const basket = await Basket.findOne({ userId });
+  if (!basket) return res.json({});
+
+  basket.items = basket.items.filter(
+    (i) => i.productId !== productId
+  );
+
+  await basket.save();
+  res.json(basket);
+}
+
+/**
+ * CLEAR basket
+ */
+export async function clearBasket(req, res) {
+  const { userId } = req.body;
+  await Basket.deleteOne({ userId });
+  res.json({ success: true });
+}
+
