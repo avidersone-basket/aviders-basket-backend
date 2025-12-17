@@ -82,6 +82,37 @@ router.get("/", async (req, res) => {
 });
 
 /**
+ * 🗑️ DELETE ITEM FROM BASKET
+ * DELETE /basket
+ */
+router.delete("/", async (req, res) => {
+  try {
+    const { userId, productId } = req.body;
+
+    if (!userId || !productId) {
+      return res.status(400).json({ message: "userId and productId required" });
+    }
+
+    const result = await BasketItem.findOneAndDelete({
+      userId,
+      productId,
+    });
+
+    if (!result) {
+      return res.status(404).json({ message: "Item not found" });
+    }
+
+    res.json({
+      success: true,
+      message: "Item removed from basket",
+    });
+  } catch (err) {
+    console.error("❌ Delete basket item error:", err);
+    res.status(500).json({ message: "Failed to remove item" });
+  }
+});
+
+/**
  * 🧠 NEXT RUN CALCULATOR
  */
 function calculateNextRun(freq) {
