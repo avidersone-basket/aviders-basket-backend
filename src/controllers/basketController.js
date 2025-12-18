@@ -42,6 +42,9 @@ export async function addToBasket(req, res) {
       userId,
       email,
       productId,
+      title,
+      image,
+      quantity = 1,
       source,
       affiliateUrl,
       priceAtAdd,
@@ -67,13 +70,16 @@ export async function addToBasket(req, res) {
     // Calculate next run date
     const nextRunAt = calculateNextRun(frequency);
 
-    // Upsert basket item
+    // Upsert basket item (including title and image)
     const item = await BasketItem.findOneAndUpdate(
       { userId, productId },
       {
         userId,
         email,
         productId,
+        title: title || null,
+        image: image || null,
+        quantity: quantity || 1,
         source,
         affiliateUrl,
         priceAtAdd,
