@@ -6,6 +6,10 @@ import {
   updateItemStatus,
   getDueItems,
 } from "../controllers/basketController.js";
+import {
+  checkoutBasket,
+  getDueScheduledItems,
+} from "../controllers/checkoutController.js";
 
 const router = express.Router();
 
@@ -44,5 +48,20 @@ router.put("/status", updateItemStatus);
  * GET /basket/due
  */
 router.get("/due", getDueItems);
+
+/**
+ * 🛒 CHECKOUT BASKET
+ * POST /basket/checkout
+ * 
+ * Body: { userId, selectedProductIds?: [] }
+ * Returns: { wishlistUrl, summary: { quickBuy, scheduled } }
+ */
+router.post("/checkout", checkoutBasket);
+
+/**
+ * 📅 GET DUE SCHEDULED ITEMS (for cron)
+ * GET /basket/scheduled/due
+ */
+router.get("/scheduled/due", getDueScheduledItems);
 
 export default router;
