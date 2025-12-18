@@ -5,6 +5,10 @@ import {
   removeFromBasket,
   updateItemStatus,
   getDueItems,
+  updateSchedule,
+  pauseItem,
+  resumeItem,
+  updateQuantity,
 } from "../controllers/basketController.js";
 import {
   checkoutBasket,
@@ -63,5 +67,33 @@ router.post("/checkout", checkoutBasket);
  * GET /basket/scheduled/due
  */
 router.get("/scheduled/due", getDueScheduledItems);
+
+/**
+ * ✏️ UPDATE SCHEDULE
+ * PATCH /basket/item/:itemId
+ * 
+ * Body: { frequency: { type, dayOfWeek?, dayOfMonth?, intervalDays? } }
+ */
+router.patch("/item/:itemId", updateSchedule);
+
+/**
+ * ⏸️ PAUSE ITEM
+ * PATCH /basket/item/:id/pause
+ */
+router.patch("/item/:id/pause", pauseItem);
+
+/**
+ * ▶️ RESUME ITEM
+ * PATCH /basket/item/:id/resume
+ */
+router.patch("/item/:id/resume", resumeItem);
+
+/**
+ * 🔢 UPDATE QUANTITY
+ * PATCH /basket/item/:id/quantity
+ * 
+ * Body: { quantity: number }
+ */
+router.patch("/item/:id/quantity", updateQuantity);
 
 export default router;

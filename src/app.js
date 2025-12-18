@@ -16,7 +16,7 @@ app.get("/", (_, res) => {
   res.json({
     success: true,
     message: "Aviders Basket API Live",
-    version: "2.0.0",
+    version: "2.1.0",
     endpoints: {
       addToBasket: "POST /basket",
       getUserBasket: "GET /basket?userId={userId}",
@@ -25,6 +25,10 @@ app.get("/", (_, res) => {
       getDueItems: "GET /basket/due",
       checkout: "POST /basket/checkout",
       getDueScheduled: "GET /basket/scheduled/due",
+      updateSchedule: "PATCH /basket/item/:itemId",
+      pauseItem: "PATCH /basket/item/:id/pause",
+      resumeItem: "PATCH /basket/item/:id/resume",
+      updateQuantity: "PATCH /basket/item/:id/quantity",
     },
   });
 });
