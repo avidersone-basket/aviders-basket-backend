@@ -51,6 +51,22 @@ const BasketItemSchema = new mongoose.Schema(
       index: true,
     },
 
+    // Product display info (snapshot at add time)
+    title: {
+      type: String,
+      default: null,
+    },
+
+    image: {
+      type: String,
+      default: null,
+    },
+
+    quantity: {
+      type: Number,
+      default: 1,
+    },
+
     source: {
       type: String, // amazon_in | amazon_us | woocommerce
       required: true,
