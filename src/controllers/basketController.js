@@ -110,6 +110,7 @@ export async function addToBasket(req, res) {
 
 /**
  * Get user's basket
+ * UPDATED: Returning all items (active, paused) so frontend can handle filtering
  */
 export async function getUserBasket(req, res) {
   try {
@@ -122,12 +123,13 @@ export async function getUserBasket(req, res) {
       });
     }
 
+    // REMOVED status: "active" to include paused items in the response
     const items = await BasketItem.find({
       userId,
-      status: "active",
+      status: { $ne: "cancelled" } // Include active and paused, exclude cancelled
     }).sort({ createdAt: -1 });
 
-    console.log(`📦 Fetched ${items.length} basket items for user ${userId}`);
+    console.log(`📦 Fetched ${items.length} basket items for user ${userId} (including paused)`);
 
     res.json({
       success: true,
