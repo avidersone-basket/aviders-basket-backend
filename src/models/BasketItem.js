@@ -4,7 +4,7 @@ const FrequencySchema = new mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ["weekly", "monthly", "custom", "buy_once"],
+      enum: ["weekly", "monthly", "custom", "buy_once", "quarterly"], // ✅ Added "quarterly"
       required: true,
     },
 
@@ -16,7 +16,14 @@ const FrequencySchema = new mongoose.Schema(
 
     // For monthly
     dayOfMonth: {
-      type: Number, // 1 - 28 (safe range)
+      type: Number, // 1 - 31
+      default: null,
+    },
+
+    // For quarterly - you might want to add quarter-specific fields
+    // For example: which months to deliver (Jan, Apr, Jul, Oct)
+    quarterMonths: {
+      type: [Number], // Array of months [1, 4, 7, 10]
       default: null,
     },
 
