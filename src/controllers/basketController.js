@@ -17,20 +17,34 @@ export function calculateNextRun(freq) {
     case "monthly": {
       const d = new Date(now);
       d.setMonth(d.getMonth() + 1);
-      d.setDate(Math.min(freq.dayOfMonth, 28));
+      // Cap day at the last day of the target month
+      const lastDayOfMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+      const safeDay = Math.min(freq.dayOfMonth || d.getDate(), lastDayOfMonth);
+      d.setDate(safeDay);
       return d;
     }
 
     case "quarterly": {
       const d = new Date(now);
-      // For quarterly, deliver every 3 months on the same day
+      const dayOfMonth = freq.dayOfMonth || d.getDate();
+      
+      // Add 3 months
       d.setMonth(d.getMonth() + 3);
       
-      // Get the day of month (default to current day if not provided)
-      const dayOfMonth = freq.dayOfMonth || now.getDate();
+      // Cap day at the last day of the target month
+      const lastDayOfMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+      const safeDay = Math.min(dayOfMonth, lastDayOfMonth);
+      d.setDate(safeDay);
       
-      // Cap at 28 for safety (avoids February issues)
-      d.setDate(Math.min(dayOfMonth, 28));
+      // If the date is in the past (we added months but the day is earlier in the month),
+      // add another 3 months
+      if (d <= now) {
+        d.setMonth(d.getMonth() + 3);
+        const nextLastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+        const nextSafeDay = Math.min(dayOfMonth, nextLastDay);
+        d.setDate(nextSafeDay);
+      }
+      
       return d;
     }
 
@@ -121,6 +135,7 @@ export async function addToBasket(req, res) {
     });
   }
 }
+
 /**
  * Get user's basket
  * UPDATED: Returning all items (active, paused) so frontend can handle filtering
@@ -294,6 +309,14 @@ export async function updateSchedule(req, res) {
       return res.status(400).json({ 
         success: false,
         message: "frequency.type required" 
+      });
+    }
+
+    // ✅ UPDATED: Validate frequency type includes quarterly
+    if (!["weekly", "monthly", "quarterly", "custom", "buy_once"].includes(frequency.type)) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Invalid frequency type" 
       });
     }
 
