@@ -21,6 +21,19 @@ export function calculateNextRun(freq) {
       return d;
     }
 
+    case "quarterly": {
+      const d = new Date(now);
+      // For quarterly, deliver every 3 months on the same day
+      d.setMonth(d.getMonth() + 3);
+      
+      // Get the day of month (default to current day if not provided)
+      const dayOfMonth = freq.dayOfMonth || now.getDate();
+      
+      // Cap at 28 for safety (avoids February issues)
+      d.setDate(Math.min(dayOfMonth, 28));
+      return d;
+    }
+
     case "custom": {
       const d = new Date(now);
       d.setDate(d.getDate() + (freq.intervalDays || 30));
@@ -60,7 +73,8 @@ export async function addToBasket(req, res) {
       });
     }
 
-    if (!["weekly", "monthly", "custom", "buy_once"].includes(frequency.type)) {
+    // ✅ UPDATED: Include "quarterly" in the validation
+    if (!["weekly", "monthly", "quarterly", "custom", "buy_once"].includes(frequency.type)) {
       return res.status(400).json({ 
         success: false,
         message: "Invalid frequency type" 
@@ -107,7 +121,6 @@ export async function addToBasket(req, res) {
     });
   }
 }
-
 /**
  * Get user's basket
  * UPDATED: Returning all items (active, paused) so frontend can handle filtering
